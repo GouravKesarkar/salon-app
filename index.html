@@ -152,9 +152,6 @@ from that folder to test service worker behavior.
       attachHandlers(route);
     }
 
-    window.addEventListener('hashchange', render);
-    window.addEventListener('load', ()=>{render(); registerSW();});
-
     /* --- Pages --- */
     function homePage(){
       return `
