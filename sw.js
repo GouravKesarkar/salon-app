@@ -1,22 +1,33 @@
-// sw.js — simple static cache-first service worker
-const CACHE = 'gentle-v1';
+const CACHE_NAME = "gentle-cache-v1";
 const ASSETS = [
-  '/', '/index.html', '/manifest.json'
+  "/",
+  "/index.html",
+  "/manifest.json",
+  "/icon/mylibrary-icon-192.png"
 ];
 
-self.addEventListener('install', ev => {
-  ev.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)));
-  self.skipWaiting();
+// Install event - cache assets
+self.addEventListener("install", (event) => {
+  event.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS))
+  );
 });
 
-self.addEventListener('activate', ev => {
-  ev.waitUntil(self.clients.claim());
+// Activate event - cleanup old caches
+self.addEventListener("activate", (event) => {
+  event.waitUntil(
+    caches.keys().then((keys) =>
+      Promise.all(keys.map((key) => key !== CACHE_NAME && caches.delete(key)))
+    )
+  );
 });
 
-self.addEventListener('fetch', ev => {
-  const req = ev.request;
-  if(req.method !== 'GET') return;
-  ev.respondWith(caches.match(req).then(r => r || fetch(req).then(fres => {
-    return caches.open(CACHE).then(c => { c.put(req, fres.clone()); return fres; });
-  })).catch(()=>caches.match('/index.html')));
+// Fetch event - serve from cache first
+self.addEventListener("fetch", (event) => {
+  event.respondWith(
+    caches.match(event.request).then((cachedResponse) => {
+      return cachedResponse || fetch(event.request);
+    })
+  );
 });
+
