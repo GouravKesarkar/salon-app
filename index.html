@@ -1,0 +1,244 @@
+<!--
+Filename: index.html
+Description: Lightweight, visually appealing 3-page static PWA for a men's salon. 
+Uses hash-routing (/#/, /#/services, /#/book) so it works as a static file. 
+Save the companion files sw.js and manifest.json shown at the bottom (they're included as commented sections).
+
+Instructions:
+1. Create three files in the same folder: index.html (this file), 
+sw.js (copy the sw.js block below), manifest.json (copy the manifest block below).
+2. Serve with a static server (e.g., `npx http-server` or `python -m http.server`) 
+from that folder to test service worker behavior.
+3. Open in browser, `Add to Home screen` will be available on supported mobile browsers.
+
+-->
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Gentlemen's Groom — Barber & Salon</title>
+
+  <!-- link to manifest (save manifest.json next to index.html) -->
+  <link rel="manifest" href="manifest.json">
+
+  <!-- theme color -->
+  <meta name="theme-color" content="#0f172a" />
+
+  <!-- favicon (simple SVG data URL for a single file demo) -->
+  <link rel="icon" href='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%230f172a%22/><text x=%2250%22 y=%2258%22 font-size=%2250%22 text-anchor=%22middle%22 fill=%22%23ffd600%22 font-family=%22Arial%22>G</text></svg>'>
+
+  <style>
+    :root{
+      --bg:#0b1220; --card:#0f172a; --muted:#9aa7b2; --accent:#ffd600; --glass: rgba(255,255,255,0.03);
+      --radius:14px; font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+    *{box-sizing:border-box}
+    html,body,#app{height:100%}
+    body{margin:0;background:linear-gradient(180deg,#041021 0%, #07132a 100%);color:#e6eef6;-webkit-font-smoothing:antialiased;}
+    .container{max-width:980px;margin:28px auto;padding:20px}
+
+    /* Header */
+    header{display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .brand{display:flex;align-items:center;gap:12px}
+    .logo{width:56px;height:56px;border-radius:12px;background:linear-gradient(135deg,var(--accent),#ff9f00);display:flex;align-items:center;justify-content:center;color:#081224;font-weight:800;font-size:20px}
+    h1{font-size:20px;margin:0}
+    p.lead{margin:0;color:var(--muted);font-size:13px}
+
+    /* Cards & layout */
+    .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:18px}
+    .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:18px;border-radius:var(--radius);box-shadow:0 6px 20px rgba(2,6,23,0.6);}
+    .hero{display:flex;gap:18px;align-items:center}
+    .hero .info{flex:1}
+    .cta{display:inline-flex;align-items:center;gap:10px;padding:10px 14px;border-radius:10px;background:var(--accent);color:#081224;font-weight:700;text-decoration:none}
+
+    /* Services list */
+    ul.services{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:1fr;gap:10px}
+    li.svc{display:flex;align-items:center;justify-content:space-between;padding:12px;border-radius:10px;background:var(--glass)}
+    .svc .left{display:flex;gap:12px;align-items:center}
+    .badge{width:44px;height:44px;border-radius:10px;background:linear-gradient(180deg,#092235,#053147);display:flex;align-items:center;justify-content:center}
+    .svc h4{margin:0;font-size:15px}
+    .price{color:var(--accent);font-weight:700}
+
+    /* Booking form */
+    form{display:grid;gap:10px}
+    input,select,textarea{padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,0.03);background:transparent;color:inherit}
+    button.primary{padding:12px;border-radius:10px;border:none;background:var(--accent);color:#081224;font-weight:700}
+
+    footer{margin-top:22px;color:var(--muted);font-size:13px;text-align:center}
+
+    /* nav */
+    nav{display:flex;gap:10px}
+    nav a{padding:8px 12px;border-radius:10px;text-decoration:none;color:var(--muted)}
+    nav a.active{background:rgba(255,255,255,0.03);color:#fff}
+
+    /* responsive */
+    @media (max-width:720px){.grid{grid-template-columns:1fr}.logo{width:48px;height:48px}.container{margin:12px}}
+  </style>
+</head>
+<body>
+  <div id="app" class="container">
+    <header>
+      <div class="brand">
+        <div class="logo">G</div>
+        <div>
+          <h1>Gentlemen's Groom</h1>
+          <p class="lead">Classic cuts • Straight razor shaves • Beard styling</p>
+        </div>
+      </div>
+      <nav id="nav">
+        <a href="#/" data-route="/">Home</a>
+        <a href="#/services" data-route="/services">Services</a>
+        <a href="#/book" data-route="/book">Book</a>
+      </nav>
+    </header>
+
+    <main id="main" style="margin-top:14px">
+      <!-- content injected by router -->
+    </main>
+
+    <footer>
+      Built for style • Open for walk-ins & appointments • Phone: +91 98765 43210
+    </footer>
+  </div>
+
+  <script>
+    /* --- Simple hash router --- */
+    const routes = {
+      '/': homePage,
+      '/services': servicesPage,
+      '/book': bookPage
+    };
+
+    function setActiveNav(path){
+      document.querySelectorAll('#nav a').forEach(a=>{
+        a.classList.toggle('active', a.getAttribute('href') === '#'+(path||'/'))
+      })
+    }
+
+    function render(){
+      const hash = location.hash.replace('#','') || '/';
+      const route = routes[hash] ? hash : '/';
+      setActiveNav(route);
+      document.getElementById('main').innerHTML = routes[route]();
+      attachHandlers(route);
+    }
+
+    window.addEventListener('hashchange', render);
+    window.addEventListener('load', ()=>{render(); registerSW();});
+
+    /* --- Pages --- */
+    function homePage(){
+      return `
+      <section class="grid">
+        <div class="card hero">
+          <div class="info">
+            <h2 style="margin:0 0 8px;">Classic Cuts, Modern Edge</h2>
+            <p style="margin:0 0 12px;color:var(--muted)">Expert barbers, premium grooming products and a relaxed atmosphere. Quick cuts, signature shaves and beard sculpting.</p>
+            <a class="cta" href="#/book">Book Now →</a>
+          </div>
+          <div style="width:220px;text-align:center">
+            <!-- simple illustrative SVG -->
+            <svg width="160" height="160" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+              <rect x="0" y="0" width="200" height="200" rx="20" fill="#071328" />
+              <path d="M50 140 C70 100, 130 100, 150 140" stroke="#ffd600" stroke-width="6" fill="none" stroke-linecap="round"/>
+              <circle cx="100" cy="70" r="28" fill="#0f172a" stroke="#ffd600" stroke-width="4" />
+            </svg>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 style="margin-top:0">Why choose us</h3>
+          <ul style="margin:8px 0 0;padding-left:18px;color:var(--muted)">
+            <li>Experienced barbers with attention to detail</li>
+            <li>Hygienic, comfortable environment</li>
+            <li>Fast turnaround — great for busy schedules</li>
+          </ul>
+        </div>
+      </section>
+      `;
+    }
+
+    function servicesPage(){
+      const services = [
+        {title:'Classic Haircut', desc:'Scissor & clipper blend, tailored to suit your face shape.', price:'₹350'},
+        {title:'Premium Fade', desc:'Skin fade, precision lines, styled finish.', price:'₹450'},
+        {title:'Beard Sculpt', desc:'Trim, shape and hot towel finish.', price:'₹250'},
+        {title:'Straight Razor Shave', desc:'Luxury shave with hot towels and moisturizing balm.', price:'₹400'}
+      ];
+
+      return `
+      <section class="card">
+        <h3 style="margin-top:0">Services</h3>
+        <p style="color:var(--muted);margin-top:6px">Transparent pricing and quick service. Walk-ins welcome.</p>
+        <ul class="services" style="margin-top:12px">
+          ${services.map(s=>`<li class="svc"><div class="left"><div class="badge">✂️</div><div><h4>${s.title}</h4><div style="color:var(--muted);font-size:13px">${s.desc}</div></div></div><div class="price">${s.price}</div></li>`).join('')}
+        </ul>
+      </section>
+      `;
+    }
+
+    function bookPage(){
+      return `
+      <section class="card">
+        <h3 style="margin-top:0">Book an appointment</h3>
+        <p style="color:var(--muted)">Choose date, time and service. We'll confirm by SMS.</p>
+        <form id="bookingForm">
+          <input type="text" id="name" placeholder="Your name" required />
+          <input type="tel" id="phone" placeholder="Mobile number" required />
+          <select id="service">
+            <option value="Classic Haircut">Classic Haircut — ₹350</option>
+            <option value="Premium Fade">Premium Fade — ₹450</option>
+            <option value="Beard Sculpt">Beard Sculpt — ₹250</option>
+            <option value="Straight Razor Shave">Straight Razor Shave — ₹400</option>
+          </select>
+          <input type="date" id="date" required />
+          <input type="time" id="time" required />
+          <button class="primary" type="submit">Request Booking</button>
+        </form>
+        <div id="bookResult" style="margin-top:12px;color:var(--muted)"></div>
+      </section>
+      `;
+    }
+
+    function attachHandlers(route){
+      if(route === '/book'){
+        const form = document.getElementById('bookingForm');
+        form && form.addEventListener('submit', (e)=>{
+          e.preventDefault();
+          const name = document.getElementById('name').value.trim();
+          const phone = document.getElementById('phone').value.trim();
+          const service = document.getElementById('service').value;
+          const date = document.getElementById('date').value;
+          const time = document.getElementById('time').value;
+
+          if(!name||!phone||!date||!time){document.getElementById('bookResult').textContent='Please fill all fields.';return}
+
+          // Save locally as demonstration (in real app you'd send to server)
+          const bookings = JSON.parse(localStorage.getItem('gentle.bookings')||'[]');
+          bookings.push({id:Date.now(),name,phone,service,date,time});
+          localStorage.setItem('gentle.bookings', JSON.stringify(bookings));
+
+          document.getElementById('bookResult').textContent = `Thanks ${name}! Booking requested for ${date} at ${time}. We'll call to confirm.`;
+          form.reset();
+        })
+      }
+    }
+
+    /* --- Service worker registration (expects sw.js file in same folder) --- */
+    function registerSW(){
+      if('serviceWorker' in navigator){
+        navigator.serviceWorker.register('sw.js').then(reg => {
+          console.log('SW registered', reg.scope);
+        }).catch(err => console.warn('SW register failed', err));
+      }
+    }
+
+    /* small helper to show stored bookings in console */
+    window.showBookings = ()=>console.table(JSON.parse(localStorage.getItem('gentle.bookings')||'[]'));
+  </script>
+
+
+</body>
+</html>
