@@ -211,27 +211,47 @@ from that folder to test service worker behavior.
     }
 
     function bookPage(){
-      return `
-      <section class="card">
-        <h3 style="margin-top:0">Book an appointment</h3>
-        <p style="color:var(--muted)">Choose date, time and service. We'll confirm by SMS.</p>
-        <form id="bookingForm">
-          <input type="text" id="name" placeholder="Your name" required />
-          <input type="tel" id="phone" placeholder="Mobile number" required />
-          <select id="service">
-            <option value="Classic Haircut">Classic Haircut — ₹350</option>
-            <option value="Premium Fade">Premium Fade — ₹450</option>
-            <option value="Beard Sculpt">Beard Sculpt — ₹250</option>
-            <option value="Straight Razor Shave">Straight Razor Shave — ₹400</option>
-          </select>
-          <input type="date" id="date" required />
-          <input type="time" id="time" required />
-          <button class="primary" type="submit">Request Booking</button>
-        </form>
-        <div id="bookResult" style="margin-top:12px;color:var(--muted)"></div>
-      </section>
-      `;
-    }
+        return `
+        <section class="card">
+          <h3 style="margin-top:0">Book an appointment</h3>
+          <p style="color:var(--muted)">Choose date, time and service. We'll confirm by SMS.</p>
+          <form id="bookingForm" style="display:grid;gap:14px">
+            <div>
+              <label for="name" style="display:block;margin-bottom:6px;font-weight:600;">Name</label>
+              <input type="text" id="name" placeholder="Your name" required />
+            </div>
+
+            <div>
+              <label for="phone" style="display:block;margin-bottom:6px;font-weight:600;">Phone</label>
+              <input type="tel" id="phone" placeholder="Mobile number" required />
+            </div>
+            <div>
+              <label for="service" style="display:block;margin-bottom:6px;font-weight:600;">Service</label>
+              <select id="service">
+                <option value="Classic Haircut">Classic Haircut — ₹350</option>
+                <option value="Premium Fade">Premium Fade — ₹450</option>
+                <option value="Beard Sculpt">Beard Sculpt — ₹250</option>
+                <option value="Straight Razor Shave">Straight Razor Shave — ₹400</option>
+              </select>
+            </div>
+            <div>
+              <label for="date" style="display:block;margin-bottom:6px;font-weight:600;">Date</label>
+              <input type="date" id="date" required />
+            </div>
+
+            <div>
+              <label for="time" style="display:block;margin-bottom:6px;font-weight:600;">Time</label>
+              <input type="time" id="time" required />
+            </div>
+
+            <button class="primary" type="submit">Request Booking</button>
+          </form>
+
+          <div id="bookResult" style="margin-top:12px;color:var(--muted)"></div>
+        </section>
+        `;
+      }
+
 
     function attachHandlers(route){
       if(route === '/book'){
