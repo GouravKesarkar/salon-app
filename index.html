@@ -246,10 +246,30 @@ from that folder to test service worker behavior.
 
           if(!name||!phone||!date||!time){document.getElementById('bookResult').textContent='Please fill all fields.';return}
 
-          // Save locally as demonstration (in real app you'd send to server)
-          const bookings = JSON.parse(localStorage.getItem('gentle.bookings')||'[]');
-          bookings.push({id:Date.now(),name,phone,service,date,time});
+          // Save locally as demonstration (offline-friendly)
+          const bookings = JSON.parse(localStorage.getItem('gentle.bookings') || '[]');
+          const newBooking = { id: Date.now(), name, phone, service, date, time };
+          bookings.push(newBooking);
           localStorage.setItem('gentle.bookings', JSON.stringify(bookings));
+
+          // Also send to Google Sheet (online sync)
+          fetch('https://script.google.com/macros/s/AKfycbybU96zW4sZDZufOaWyo48oxyQjlX9PyxZX6Ms75wBXaHJLPkOMjinyO1TlknqS9HhFcQ/exec', {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(newBooking)
+          })
+          .then(() => {
+            document.getElementById('bookResult').textContent =
+              `✅ Thanks ${name}! Booking requested for ${date} at ${time}. We'll call to confirm.`;
+            form.reset();
+          })
+          .catch(err => {
+            console.error('❌ Booking submission failed:', err);
+            document.getElementById('bookResult').textContent =
+              `⚠️ Booking saved locally (offline). It’ll sync when online.`;
+          });
+
 
           document.getElementById('bookResult').textContent = `Thanks ${name}! Booking requested for ${date} at ${time}. We'll call to confirm.`;
           form.reset();
