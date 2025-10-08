@@ -152,6 +152,8 @@ from that folder to test service worker behavior.
       attachHandlers(route);
     }
 
+    window.addEventListener('hashchange', render);
+
     /* --- Pages --- */
     function homePage(){
       return `
