@@ -153,6 +153,7 @@ from that folder to test service worker behavior.
     }
 
     window.addEventListener('hashchange', render);
+    window.addEventListener('load', ()=>{render();});
 
     /* --- Pages --- */
     function homePage(){
