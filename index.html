@@ -74,7 +74,34 @@ from that folder to test service worker behavior.
     nav a.active{background:rgba(255,255,255,0.03);color:#fff}
 
     /* responsive */
-    @media (max-width:720px){.grid{grid-template-columns:1fr}.logo{width:48px;height:48px}.container{margin:12px}}
+    @media (max-width:720px){
+      .grid{
+        grid-template-columns:1fr;
+      }
+      .logo{
+        width:48px;
+        height:48px;
+      }
+      .container{
+        margin:12px;
+      }
+
+      /* 🧩 make hero section mobile-friendly */
+      .hero{
+        flex-direction:column;
+        text-align:center;
+      }
+      .hero .info{
+        order:2;
+      }
+      .hero svg{
+        width:100%;
+        max-width:140px;
+        height:auto;
+        margin-top:10px;
+      }
+    }
+
   </style>
 </head>
 <body>
@@ -135,18 +162,22 @@ from that folder to test service worker behavior.
         <div class="card hero">
           <div class="info">
             <h2 style="margin:0 0 8px;">Classic Cuts, Modern Edge</h2>
-            <p style="margin:0 0 12px;color:var(--muted)">Expert barbers, premium grooming products and a relaxed atmosphere. Quick cuts, signature shaves and beard sculpting.</p>
+            <p style="margin:0 0 12px;color:var(--muted)">
+              Expert barbers, premium grooming products and a relaxed atmosphere. Quick cuts, signature shaves and beard sculpting.
+            </p>
             <a class="cta" href="#/book">Book Now →</a>
           </div>
-          <div style="width:220px;text-align:center">
-            <!-- simple illustrative SVG -->
-            <svg width="160" height="160" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+
+          <div style="width:100%;max-width:220px;text-align:center;flex-shrink:0;">
+            <!-- Responsive illustrative SVG -->
+            <svg viewBox="0 0 200 200" style="width:100%;max-width:140px;height:auto;" xmlns="http://www.w3.org/2000/svg">
               <rect x="0" y="0" width="200" height="200" rx="20" fill="#071328" />
               <path d="M50 140 C70 100, 130 100, 150 140" stroke="#ffd600" stroke-width="6" fill="none" stroke-linecap="round"/>
               <circle cx="100" cy="70" r="28" fill="#0f172a" stroke="#ffd600" stroke-width="4" />
             </svg>
           </div>
         </div>
+
 
         <div class="card">
           <h3 style="margin-top:0">Why choose us</h3>
