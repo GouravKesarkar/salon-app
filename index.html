@@ -128,6 +128,31 @@ from that folder to test service worker behavior.
     <footer>
       Built for style • Open for walk-ins & appointments • Phone: +91 98765 XXXXX
     </footer>
+
+    <button id="installBtn"
+      style="
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        padding: 14px 18px;
+        font-weight: 700;
+        border: none;
+        border-radius: 50px;
+        background: linear-gradient(135deg, var(--accent), #ffb800);
+        color: #081224;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+        cursor: pointer;
+        display: none;
+        z-index: 1000;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+      "
+      onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 6px 24px rgba(0,0,0,0.5)'"
+      onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 4px 20px rgba(0,0,0,0.4)'"
+    >
+      📲 Install App
+    </button>
+
+
   </div>
 
   <script>
@@ -307,6 +332,32 @@ from that folder to test service worker behavior.
         .catch(err => console.log("❌ SW registration failed", err));
     }
   </script>
+
+    <script>
+      let deferredPrompt;
+      const installBtn = document.getElementById("installBtn");
+
+      window.addEventListener("beforeinstallprompt", (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        installBtn.style.display = "block"; // show the floating button
+      });
+
+      installBtn.addEventListener("click", async () => {
+        if (!deferredPrompt) return;
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        console.log("User response:", outcome);
+        deferredPrompt = null;
+        installBtn.style.display = "none";
+      });
+
+      window.addEventListener("appinstalled", () => {
+        console.log("✅ PWA installed");
+        installBtn.style.display = "none";
+      });
+    </script>
+
 
 
 </body>
