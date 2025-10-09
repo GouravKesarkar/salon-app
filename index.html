@@ -73,6 +73,33 @@ from that folder to test service worker behavior.
     nav a{padding:8px 12px;border-radius:10px;text-decoration:none;color:var(--muted)}
     nav a.active{background:rgba(255,255,255,0.03);color:#fff}
 
+    .share-btn {
+      display: inline-block;
+      margin-top: 12px;
+      padding: 10px 18px;
+      background: #25D366; /* WhatsApp green */
+      color: white;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 0.95rem;
+      transition: background 0.2s ease;
+    }
+    .share-btn:hover {
+      background: #1da851;
+    }
+
+    footer {
+      padding: 16px;
+      text-align: center;
+    }
+    footer .share-btn {
+      margin-top: 10px;
+      display: inline-block;
+    }
+
+
+
     /* responsive */
     @media (max-width:720px){
       .grid{
@@ -127,7 +154,16 @@ from that folder to test service worker behavior.
 
     <footer>
       Built for style • Open for walk-ins & appointments • Phone: +91 98765 XXXXX
+      <br>
+      <a href="https://wa.me/?text=💇‍♀️%20Check%20out%20this%20Gentle%20Salon%20App!%20Book%20your%20appointment%20easily%20here:%20https://gouravkesarkar.github.io/salon-app/index.html"
+         class="share-btn"
+         target="_blank"
+         rel="noopener">
+        📤 Share via WhatsApp
+      </a>
     </footer>
+    
+
 
     <button id="installBtn"
       style="
