@@ -9,7 +9,7 @@
     "orientation": "portrait",
     "icons": [
       {
-        "src": "icon/mylibrary-icon-192.png",
+        "src": "icon/salon-app-icon.png",
         "sizes": "192x192",
         "type": "image/png"
       }
